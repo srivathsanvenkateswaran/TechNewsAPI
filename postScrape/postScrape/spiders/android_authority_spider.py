@@ -3,13 +3,13 @@ import json
 
 class BeebomSpider(scrapy.Spider):
     
-    name = "Beebom"
+    name = "AndroidAuthority"
     # This is the name of this particular spider.. name must be unique for every spider 
 
     start_urls = [
-        'https://beebom.com/category/news/',
-        'https://beebom.com/category/reviews/',
-        'https://beebom.com/category/how-to/'
+        "https://www.androidauthority.com/news/",
+        "https://www.androidauthority.com/reviews/",
+        "https://www.androidauthority.com/apps/"
     ]
     # These are all the list of urls needed to be crawled by the spider 
 
@@ -18,12 +18,35 @@ class BeebomSpider(scrapy.Spider):
 
     def parse(self, response):
         # Parsing the required data from response
-        titles = response.css('.entry-title a::text').getall()
-        descriptions = response.css('.td-excerpt::text').getall()
-        urls = response.css('.entry-title a::attr(href)').getall()
-        images = response.css('.td-module-thumb img::attr(src)').getall()
-        authors = response.css('.td-post-author-name a::text').getall()
-        dates = response.css('.td-post-date time::text').getall()
+        titles = response.css('.article-title::text').getall()
+        descriptions = response.css('.excerpt::text').getall()
+        urls = response.css('.loop-info a::attr(href)').getall()
+        
+        divs = response.css('.loop-image').getall()
+        images = []
+        for item in divs:
+            images.append(item.split(" ")[4][10:-1])
+        
+        divs.clear()
+
+
+        # images = response.css('.td-module-thumb img::attr(src)').getall() 
+        # response.css('.loop-image').get().split(" ")[4][10:-1]
+        # This is done to remove duplicates [first 4 entries are duplicates]
+
+        # RESOLVE THE BUG WITH DATE AND AUTHOR ASAP 
+
+        dates = response.css('.aa_item_time::text').getall()
+        for i in range(0,4):
+            dates.pop(0)
+        # This is done to remove duplicates [first 4 entries are duplicates]
+
+        authors = response.css('.bottom-loop-info span::text').getall()
+        del authors[1::2]
+        # Delete all the odd index occurances in the list
+
+        for i in range(0,4):
+            authors.pop(0)
 
         for item in zip(titles, descriptions, urls, images, authors, dates):
             d = {
@@ -32,14 +55,14 @@ class BeebomSpider(scrapy.Spider):
                 'Url': item[2],
                 'Img': item[3],
                 'Author': item[4],
-                'Source': "Beebom",
+                'Source': "Android Authority",
                 'Date' : item[5]
             }
             # Here we are creating a JSON Object from the parsed data 
             self.dictList.append(d)
             # We are appending the dictionary to the list so that we can finally convert it into a JSON Array
 
-        with open("Beebom.json", 'w') as f:
+        with open("AndroidAuthority.json", 'w') as f:
             f.write(json.dumps(self.dictList)) 
             #json.dumps converts the List of dictionaries into a Json Array
             # writing the json array into a file 
