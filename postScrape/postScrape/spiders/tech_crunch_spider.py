@@ -1,13 +1,13 @@
 import scrapy
 import json
 
-class TheVergeSpider(scrapy.Spider):
+class TechCrunchSpider(scrapy.Spider):
     
-    name = "TheVerge"
+    name = "TechCrunch"
     # This is the name of this particular spider.. name must be unique for every spider 
 
     start_urls = [
-        'https://www.theverge.com/tech'
+        'https://techcrunch.com/'
     ]
     # These are all the list of urls needed to be crawled by the spider 
 
@@ -17,24 +17,21 @@ class TheVergeSpider(scrapy.Spider):
     def parse(self, response):
         # Parsing the required data from response
 
-        titles = response.css('.c-entry-box--compact__title a::text').getall()
-        ind = titles.index('Reviews')
-        descriptions = titles
-        urls = response.css('.c-entry-box--compact__title a::attr(href)').getall()
-        titles.pop(ind)
-        urls.pop(ind)
-        images = response.css('.c-entry-box--compact__image noscript img::attr(src)').getall()
+        dum = response.css('.post-block__title__link::text').getall()
+        titles = [s.strip() for s in dum]
+        del dum
 
-        authors = response.css('.c-byline__author-name::text').getall()
-        for i in range(0,2):
-            authors.pop(0)
-        authors.insert(5, "Unknown")
+        dum = response.css('.river-byline__authors a::text').getall()
+        authors = [s.strip() for s in dum]
+        del dum 
 
-        dates = response.css('.c-byline__item time::attr(datetime)').getall()
-        dates.insert(4, "")
-        dates.insert(5, "")
-        dates.insert(17, "")
-        dates.insert(29, "")
+        dum = response.css('.post-block__content::text').getall()
+        descriptions = [s.strip() for s in dum]
+        del dum
+
+        urls = response.css('.post-block__title a::attr(href)').getall()
+        images = response.css('.post-block__media img::attr(src)').getall()
+        dates = response.css('.river-byline time::attr(datetime)').getall()
 
         for item in zip(titles, descriptions, urls, images, authors, dates):
             d = {
@@ -43,14 +40,14 @@ class TheVergeSpider(scrapy.Spider):
                 'Url': item[2],
                 'Img': item[3],
                 'Author': item[4],
-                'Source': "The Verge",
+                'Source': "Tech Crunch",
                 'Date' : item[5]
             }
             # Here we are creating a JSON Object from the parsed data 
             self.dictList.append(d)
             # We are appending the dictionary to the list so that we can finally convert it into a JSON Array
 
-        with open("TheVerge.json", 'w') as f:
+        with open("TechCrunch.json", 'w') as f:
             f.write(json.dumps(self.dictList)) 
             #json.dumps converts the List of dictionaries into a Json Array
             # writing the json array into a file 

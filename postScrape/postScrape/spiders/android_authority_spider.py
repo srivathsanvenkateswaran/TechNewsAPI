@@ -1,7 +1,7 @@
 import scrapy
 import json
 
-class BeebomSpider(scrapy.Spider):
+class AndroidAuthoritySpider(scrapy.Spider):
     
     name = "AndroidAuthority"
     # This is the name of this particular spider.. name must be unique for every spider 
@@ -26,7 +26,6 @@ class BeebomSpider(scrapy.Spider):
         images = []
         for item in divs:
             images.append(item.split(" ")[4][10:-1])
-        
         del divs
 
 
