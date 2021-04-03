@@ -23,7 +23,7 @@ class BeebomSpider(scrapy.Spider):
         urls = response.css('.entry-title a::attr(href)').getall()
         images = response.css('.td-module-thumb img::attr(src)').getall()
         authors = response.css('.td-post-author-name a::text').getall()
-        dates = response.css('.td-post-date time::text').getall()
+        dates = response.css('.td-post-date time::attr(datetime)').getall()
 
         for item in zip(titles, descriptions, urls, images, authors, dates):
             d = {
