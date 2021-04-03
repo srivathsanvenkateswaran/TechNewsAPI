@@ -4,10 +4,6 @@ from flask_restful import Api, Resource, reqparse, abort
 app = Flask(__name__)
 api = Api(app)
 
-# TO DO
-# 
-# Host the spider and this API in any hosting provider
-
 API_KEY_DICTIONARY = {}
 
 def generateAPI_KEY(username):
@@ -55,5 +51,3 @@ api.add_resource(Article, "/getNews/<string:username>/<string:API_KEY>")
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-# srivathsan k1xZcgl3_L6Cza1hM217Vg
