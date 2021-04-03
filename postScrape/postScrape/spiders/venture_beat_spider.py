@@ -17,27 +17,27 @@ class VentureBeatSpider(scrapy.Spider):
     def parse(self, response):
         # Parsing the required data from response
 
+        arr = response.css('.ArticleListing__body').getall()
+        a = []
+        for i in range(len(arr)):
+            if 'Press Release' in arr[i]:
+                a.append(i)
+        # This will help us to find all the articles which are Press Release and they will not have authors and date
+
         titles = response.css('.ArticleListing__title a::text').getall()
         descriptions = titles
         urls = response.css('.ArticleListing__title a::attr(href)').getall()
-
-        images = response.css('.ArticleListing__image::attr(src)').getall()
-        images.insert(18, "")
-        images.insert(13, "")
-        images.insert(31, "")
-        images.insert(37, "")
-
+        images = response.css('.ArticleListing img::attr(src)').getall()
         authors = response.css('.ArticleListing__author::text').getall()
-        authors.insert(18, "")
-        authors.insert(13, "")
-        authors.insert(31, "")
-        authors.insert(37, "")
-
         dates = response.css('.ArticleListing__time::attr(datetime)').getall()
-        dates.insert(18, "")
-        dates.insert(13, "")
-        dates.insert(31, "")
-        dates.insert(37, "")
+
+        for index in a:
+            authors.insert(index, "Press Release")
+            dates.insert(index, "")
+        # This will add an empty string in articles which are Press Release thereby not tampering the order of information 
+
+        del arr
+        del a
 
         for item in zip(titles, descriptions, urls, images, authors, dates):
             d = {
