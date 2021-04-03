@@ -50,7 +50,7 @@ class TheVergeSpider(scrapy.Spider):
             self.dictList.append(d)
             # We are appending the dictionary to the list so that we can finally convert it into a JSON Array
 
-        with open("TheVerge.json", 'w') as f:
+        with open("results/TheVerge.json", 'w') as f:
             f.write(json.dumps(self.dictList)) 
             #json.dumps converts the List of dictionaries into a Json Array
             # writing the json array into a file 
