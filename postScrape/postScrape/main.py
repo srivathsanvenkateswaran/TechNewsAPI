@@ -1,15 +1,23 @@
 from flask import Flask
 from flask_restful import Api, Resource, reqparse, abort
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 api = Api(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/user.db'
+db = SQLAlchemy(app)
 
-API_KEY_DICTIONARY = {}
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(30), unique=True, nullable=False)
+    key = db.Column(db.String(), unique=True, nullable=False)
 
-def generateAPI_KEY(username):
+    def repr(self):
+        return f'username: {self.username}, key: {self.key}'
+
+def generateAPI_KEY():
     import secrets
     key = secrets.token_urlsafe(16)
-    API_KEY_DICTIONARY[username] = key
     return key
 
 def getJsonFromFile(filename):
@@ -17,18 +25,16 @@ def getJsonFromFile(filename):
     with open(f"results/{filename}" , 'r') as f:
         return json.loads(f.read())
 
-def validateAPI_KEY(username, API_KEY):
-    if username not in API_KEY_DICTIONARY:
+def validateAPI_KEY(uname, API_KEY):
+    temp = User.query.filter_by(username=uname).all()
+    if len(temp)<=0:
         abort(404, message="User doesn't exist")
-
-    if username in API_KEY_DICTIONARY:
-        return API_KEY_DICTIONARY[username] == API_KEY
     else:
-        return False
+        return temp[0].key == API_KEY
 
 class Article(Resource):
-    def get(self, username, API_KEY):
-        if(validateAPI_KEY(username, API_KEY)):
+    def get(self, uname, CodeString):
+        if(validateAPI_KEY(uname, CodeString)):
             return {
                 "status" : 'OK', 
                 "response" : getJsonFromFile("finalArticleList.json") 
@@ -39,15 +45,23 @@ class Article(Resource):
                 "error" : 'Invalid API_KEY'
             }
     
-    def put(self, username, API_KEY):
-        if username in API_KEY_DICTIONARY:
-            return f"User {username} already exists with API_KEY: {API_KEY_DICTIONARY[username]}", 201
+    def put(self, uname, CodeString):
+        if(CodeString == "shivajiVaailaJilebi"):
+            temp = User.query.filter_by(username=uname).all()
+            if len(temp)>0:
+                return f"User {temp[0].username} already exists with API_KEY: {temp[0].key}", 201
+            else:
+                user = User()
+                user.username = uname
+                user.key = generateAPI_KEY()
+                db.session.add(user)
+                db.session.commit()
+                return f"New user {user.username} with API_KEY: {user.key} created", 201
         else:
-            API_KEY_DICTIONARY[username] = generateAPI_KEY(username)
-            return f"New user {username} with API_KEY: {API_KEY_DICTIONARY[username]} created", 201
+            return "You are unauthorized", 401
 
 
-api.add_resource(Article, "/getNews/<string:username>/<string:API_KEY>")    
+api.add_resource(Article, "/getNews/<string:uname>/<string:CodeString>")    
 
 if __name__ == "__main__":
     app.run(debug=True)
