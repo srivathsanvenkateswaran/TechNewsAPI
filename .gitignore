@@ -19,4 +19,4 @@ htmlcov/
 /tests/keys/localhost.crt
 /tests/keys/localhost.key
 scraping-venv
-*db
+*.db
