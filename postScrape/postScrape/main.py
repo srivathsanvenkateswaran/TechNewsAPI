@@ -16,10 +16,6 @@ class User(db.Model):
     def repr(self):
         return f'username: {self.username}, key: {self.key}'
 
-if not (os.path.isfile('db/user.db')):
-    db.create_all() 
-    db.session.commit()
-
 def generateAPI_KEY():
     import secrets
     key = secrets.token_urlsafe(16)
