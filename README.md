@@ -11,3 +11,5 @@ VentureBeat.com<br />
 ## Libraries Used
 Scrapy [For scraping data from the Website]<br />
 json [Used to convert the data fetched from the file into JSON format]<br />
+Flask [Framework used to create REST API]<br />
+Flask SQL Alchemy [Used to store user credentials in a database]<br />
